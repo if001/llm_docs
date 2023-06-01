@@ -1,0 +1,4 @@
+langchain
+llama-cpp-python
+chromadb
+duckduckgo-search
