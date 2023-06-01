@@ -19,19 +19,21 @@ class HuggingFaceLoraPipeline(LLM):
     def _call(self, 
               prompt: str,
               stop: Optional[List[str]] = None,
+              **kwargs,
               ) -> str:
         prompt = self._gen_prompt(prompt)
         token_ids = self.tokenizer.encode(prompt, add_special_tokens=False, return_tensors="pt")
         with torch.no_grad():
             output_ids = self.model.generate(
-                token_ids.to(self.model.device),
+                token_ids.to('cuda'),
                 do_sample=True,
                 max_new_tokens=128,
                 temperature=0.7,
                 repetition_penalty=1.1,
                 pad_token_id=self.tokenizer.pad_token_id,
                 bos_token_id=self.tokenizer.bos_token_id,
-                eos_token_id=self.tokenizer.eos_token_id  
+                eos_token_id=self.tokenizer.eos_token_id,
+                **kwargs
             )
         
         output = self.tokenizer.decode(output_ids.tolist()[0][token_ids.size(1):])
